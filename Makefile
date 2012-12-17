@@ -1,4 +1,4 @@
-SOURCE="./src/imshow.py"
+SOURCE="./src/imgshow.py"
 TARGET="/usr/bin/imgshow"
 
 
