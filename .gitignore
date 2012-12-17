@@ -1,0 +1,5 @@
+data/**
+**.sw*
+**.pyc
+**__pycache__**
+
