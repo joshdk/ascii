@@ -45,7 +45,7 @@ def render(image):
 	width  = image.shape[1]
 	for y in range(height):
 		for x in range(width):
-			print(image[y][x], end='')
+			print(image[y][x].encode('utf-8'), end='')
 		print('')
 #}}}
 
@@ -75,15 +75,14 @@ def main(argv=None):
 
 	data = None
 	width = 80
-	# chars = '@#$=*!;:~-,.  '
-	chars = '  .,-:;!*=$#@'
+	chars = u'  .,-:;!*=$#@'
 
 	if argc >= 4:
-		if len(argv[3]) < 1:
+		chars = argv[3]
+		chars = chars.decode('utf-8')
+		if len(chars) < 1:
 			print('%s: error: chars must contain at least one character' % (argv[0]))
 			return 1
-		chars = argv[3]
-
 
 	if argc >= 3:
 		try:
