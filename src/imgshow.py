@@ -4,6 +4,7 @@ from __future__ import print_function, division
 import sys
 import scipy.misc as img
 import numpy as np
+from math import floor, ceil
 #}}}
 
 
@@ -30,7 +31,6 @@ def resize(image, width):
 def imgmap(image, fn):
 	height = image.shape[0]
 	width  = image.shape[1]
-	# grey = np.zeros((height, width))
 	result = np.reshape(np.repeat(fn(image[0][0]), height*width), (height, width))
 	for y in range(height):
 		for x in range(width):
@@ -55,7 +55,7 @@ def render(image):
 #{{{ Run
 def run(data, width=80, charset='  .,-:;!*=$#@'):
 	normalize = lambda image: imgmap(image, lambda pixel: pixel/255)
-	charmap   = lambda image: imgmap(image, lambda pixel: charset[int(pixel * (len(charset)-1))])
+	charmap   = lambda image: imgmap(image, lambda pixel: charset[int(pixel * len(charset) - (1 if pixel>=1.0 else 0))])
 
 	render(charmap(normalize(resize(data, width))))
 
