@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 #{{{ Imports
 from __future__ import print_function, division
-from PIL import Image as img, ImageOps as imgops
+from PIL import Image as img
 import sys
 #}}}
 
@@ -63,6 +63,22 @@ def render(image):
 #}}}
 
 
+#{{{ Grayscale conversion
+def grayscale(im):
+	from numpy import array, uint8
+
+	im = im.convert('F')
+	data = array(im)
+
+	cmin, cmax = data.min(), data.max()
+	scale = 255 / (cmax-cmin or 1)
+
+	bytedata = ((data-cmin)*scale+0.499).astype(uint8)
+
+	return img.fromstring('L', (data.shape[1], data.shape[0]), bytedata.tostring())
+#}}}
+
+
 
 
 #{{{ Run
@@ -71,7 +87,7 @@ def run(image, width=80, charset='  .,-:;!*=$#@'):
 	charmap   = lambda image: imgmap(image, lambda pixel: charset[int(pixel * len(charset) - (1 if pixel>=1.0 else 0))])
 
 	image = resize(image, (None, width))
-	image= imgops.grayscale(image)
+	image = grayscale(image)
 	pixels = reshape(list(image.getdata()), (image.size[1], image.size[0]))
 
 	render(charmap(normalize(pixels)))
