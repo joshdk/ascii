@@ -1,19 +1,32 @@
 #!/usr/bin/env python2
 #{{{ Imports
 from __future__ import print_function, division
+from PIL import Image as img, ImageOps as imgops
 import sys
-import scipy.misc as img
-import numpy as np
-from math import floor, ceil
 #}}}
 
 
 
 
+#{{{ Reshape array
+def reshape(seq, size):
+	result = []
+	(height, width) = size
+	for i, item in enumerate(seq):
+		if not i < height*width:
+			break
+		if i%width == 0:
+			result.append([])
+		result[-1].append(item)
+	return result
+#}}}
+
+
 #{{{ Resize image to a specific (terminal) width
-def resize(image, width):
-	iheight = image.shape[0]
-	iwidth  = image.shape[1]
+def resize(image, size):
+	(height, width) = size
+	iheight = image.size[1]
+	iwidth  = image.size[0]
 
 	twidth = width
 
@@ -23,15 +36,15 @@ def resize(image, width):
 	nwidth  = int(nwidth)
 	nheight = int(nheight)
 
-	return img.imresize(image, (nheight, nwidth))
+	return image.resize((nwidth, nheight))
 #}}}
 
 
 #{{{ Map each pixel based on a function
 def imgmap(image, fn):
-	height = image.shape[0]
-	width  = image.shape[1]
-	result = np.reshape(np.repeat(fn(image[0][0]), height*width), (height, width))
+	height = len(image)
+	width  = len(image[0])
+	result = reshape([None for _ in range(height*width)], (height, width))
 	for y in range(height):
 		for x in range(width):
 			result[y][x] = fn(image[y][x])
@@ -41,8 +54,8 @@ def imgmap(image, fn):
 
 #{{{ Print pixel matrix to the screen
 def render(image):
-	height = image.shape[0]
-	width  = image.shape[1]
+	height = len(image)
+	width  = len(image[0])
 	for y in range(height):
 		for x in range(width):
 			print(image[y][x].encode('utf-8'), end='')
@@ -53,11 +66,15 @@ def render(image):
 
 
 #{{{ Run
-def run(data, width=80, charset='  .,-:;!*=$#@'):
+def run(image, width=80, charset='  .,-:;!*=$#@'):
 	normalize = lambda image: imgmap(image, lambda pixel: pixel/255)
 	charmap   = lambda image: imgmap(image, lambda pixel: charset[int(pixel * len(charset) - (1 if pixel>=1.0 else 0))])
 
-	render(charmap(normalize(resize(data, width))))
+	image = resize(image, (None, width))
+	image= imgops.grayscale(image)
+	pixels = reshape(list(image.getdata()), (image.size[1], image.size[0]))
+
+	render(charmap(normalize(pixels)))
 
 	return True
 #}}}
@@ -96,12 +113,12 @@ def main(argv=None):
 
 	if argc >= 2:
 		try:
-			data = img.imread(argv[1], True)
+			image = img.open(argv[1])
 		except:
 			print('%s: error: could not open %s' % (argv[0], argv[1]))
 			return 1
 
-	run(data, width, chars)
+	run(image, width, chars)
 	return 0
 
 
