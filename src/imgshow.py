@@ -8,6 +8,12 @@ import sys
 
 
 
+
+def get_dimensions():
+	import fcntl, termios, struct
+	return struct.unpack('hh',  fcntl.ioctl(sys.stdout, termios.TIOCGWINSZ, '1234'))
+
+
 #{{{ Reshape array
 def reshape(seq, size):
 	result = []
@@ -107,7 +113,7 @@ def main(argv=None):
 		return 1
 
 	data = None
-	width = 80
+	height, width = get_dimensions()
 	chars = u'  .,-:;!*=$#@'
 
 	if argc >= 4:
