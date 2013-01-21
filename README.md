@@ -1,5 +1,5 @@
-imgshow
-====
+ascii
+=====
 
 An image viewer for your terminal
 
@@ -18,11 +18,11 @@ Setup
 Running
 -------
 
-    $ imgshow IMAGE [WIDTH] [CHARSET]
+    $ imgshow IMAGE [CHARSET]
 
     $ imgshow picture.jpg
 
-    $ imgshow picture.jpg 120
+    $ imgshow picture.jpg " -+=$#"
 
 
 Notes
@@ -30,4 +30,5 @@ Notes
 
 ### Dependencies
 *   Python2
-*   scipy (for now)
+*   PIL
+*   NumPy
