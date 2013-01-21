@@ -1,5 +1,5 @@
-SOURCE="./src/imgshow.py"
-TARGET="/usr/bin/imgshow"
+SOURCE="./src/ascii.py"
+TARGET="/usr/bin/ascii"
 
 
 all: install
