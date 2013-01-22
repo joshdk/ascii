@@ -16,8 +16,26 @@ def _resize(im):
 	"""
 	Take a PIL Image, and return a PIL Image, resized to the current terminal width.
 	"""
-	import fcntl, termios, struct
-	(theight, twidth) = struct.unpack('hh',  fcntl.ioctl(sys.stdout, termios.TIOCGWINSZ, '1234'))
+	import os
+	def ioctl_GWINSZ(fd):
+		try:
+			import fcntl, termios, struct, os
+			cr = struct.unpack('hh', fcntl.ioctl(fd, termios.TIOCGWINSZ, '1234'))
+		except:
+			return
+		return cr
+	cr = ioctl_GWINSZ(0) or ioctl_GWINSZ(1) or ioctl_GWINSZ(2)
+	if not cr:
+		try:
+			fd = os.open(os.ctermid(), os.O_RDONLY)
+			cr = ioctl_GWINSZ(fd)
+			os.close(fd)
+		except:
+			pass
+	if not cr:
+		cr = (os.environ.get('LINES', 25), os.environ.get('COLUMNS', 80))
+
+	(theight, twidth) = int(cr[0]), int(cr[1])
 	(iwidth, iheight) = im.size
 
 	nwidth = twidth
