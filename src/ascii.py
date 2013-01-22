@@ -1,4 +1,9 @@
 #!/usr/bin/env python2
+"""
+A library & standalone executable for displaying images as ascii art.
+"""
+
+
 from __future__ import print_function, division
 from PIL import Image as img
 import sys
@@ -6,8 +11,11 @@ import sys
 
 
 
-#{{{ Take a PIL Image, and return a resized PIL Image
+#{{{ Resize image
 def _resize(im):
+	"""
+	Take a PIL Image, and return a PIL Image, resized to the current terminal width.
+	"""
 	import fcntl, termios, struct
 	(theight, twidth) = struct.unpack('hh',  fcntl.ioctl(sys.stdout, termios.TIOCGWINSZ, '1234'))
 	(iwidth, iheight) = im.size
@@ -22,8 +30,11 @@ def _resize(im):
 #}}}
 
 
-#{{{ Take a PIL Image, and return a grayscale PIL Image
+#{{{ Grayscale image
 def _grayscale(im):
+	"""
+	Take a PIL Image, and return a PIL Image, that had been converted to grayscale
+	"""
 	from numpy import array, uint8
 
 	im = im.convert('F')
@@ -38,8 +49,11 @@ def _grayscale(im):
 #}}}
 
 
-#{{{ Take a PIL Image, and return ascii data
+#{{{ Convert an image to ascii
 def ascii(im, chars='  .,-:;!*=$#@'):
+	"""
+	Take a PIL Image, and return an array of strings, that contain ascii data.
+	"""
 	(width, height) = im.size
 	text = []
 	line = ''
@@ -56,8 +70,11 @@ def ascii(im, chars='  .,-:;!*=$#@'):
 #}}}
 
 
-#{{{ Take ascii data, and display it on the screen
+#{{{ Display ascii data
 def render(text, file=sys.stdout):
+	"""
+	Takes ascii data, and display it on the screen
+	"""
 	for y in range(len(text)):
 		for x in range(len(text[y])):
 			file.write(text[y][x])
@@ -67,14 +84,11 @@ def render(text, file=sys.stdout):
 
 
 
-#{{{ Take a PIL Image, transform it, and return ascii data
-def _process(im, chars=u'  .,-:;!*=$#@'):
-	return ascii(_grayscale(_resize(im)), chars)
-#}}}
-
-
 #{{{ Main
 def main(argv=None):
+	"""
+	A main function to be used when ascii is run from the command line.
+	"""
 	if argv is None:
 		argv = sys.argv
 	argc = len(argv)
@@ -100,8 +114,7 @@ def main(argv=None):
 			print('%s: error: chars must contain at least one character' % (argv[0]))
 			return 1
 
-	text = _process(im, chars)
-	render(text)
+	render(ascii(_grayscale(_resize(im)), chars))
 	return 0
 
 
