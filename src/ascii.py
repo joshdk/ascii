@@ -89,28 +89,8 @@ def _grayscale(im):
 #}}}
 
 
-#{{{ Convert an image to ascii
-def ascii(im, chars='  .,-:;!*=$#@'):
-	"""
-	Take a PIL Image, and return an array of strings, that contain ascii data.
-	"""
-	(width, height) = im.size
-	data = []
-	line = []
-
-	for i, pixel in enumerate(im.getdata()):
-		pixel = pixel / 255.0
-		line.append(chars[int(pixel * len(chars) - (1 if pixel >= 1 else 0))])
-
-		if i % width == width - 1:
-			data.append(line)
-			line = []
-	return data
-#}}}
-
-
 #{{{ Partition image into color groups
-def color(im, colors):
+def _partition(im, colors):
 	"""
 	Take a PIL Image, and return an array of colors, that map to terminal colors.
 	"""
@@ -142,8 +122,28 @@ def color(im, colors):
 #}}}
 
 
+#{{{ Convert an image to ascii
+def ascii_map(im, chars='  .,-:;!*=$#@'):
+	"""
+	Take a PIL Image, and return an array of strings, that contain ascii data.
+	"""
+	colors = []
+	chunk = 255.0 / len(chars)
+	offset = chunk / 2.0
+	for i in range(len(chars)):
+		val = chunk * i + offset
+		colors.append((val, val, val))
+
+	return _partition(im, colors)
+#}}}
+
+
+def color_map(im, colors):
+	return _partition(im, colors)
+
+
 #{{{ Display ascii data
-def render(characters, colors, file=sys.stdout):
+def render(char_map, characters, color_map, file=sys.stdout):
 	"""
 	Takes ascii & color data, and display it on the screen
 	"""
@@ -164,10 +164,10 @@ def render(characters, colors, file=sys.stdout):
 	def reset_colors():
 		return curses.tparm(creset)
 
-	for y in range(len(characters)):
-		for x in range(len(characters[y])):
-			file.write(set_color(colors[y][x]))
-			file.write(characters[y][x])
+	for y in range(len(char_map)):
+		for x in range(len(char_map[y])):
+			file.write(set_color(color_map[y][x]))
+			file.write(characters[char_map[y][x]])
 		file.write('\n')
 
 	file.write(reset_colors())
@@ -207,7 +207,7 @@ def main(argv=None):
 			return 1
 
 	rim = _resize(im)
-	render(ascii(_grayscale(rim), chars), color(rim, COLORS))
+	render(ascii_map(_grayscale(rim), chars), chars, color_map(rim, COLORS))
 
 	return 0
 
