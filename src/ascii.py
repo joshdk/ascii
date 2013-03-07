@@ -143,34 +143,36 @@ def color_map(im, colors):
 
 
 #{{{ Display ascii data
-def render(char_map, characters, color_map, file=sys.stdout):
+def render(char_map, characters, color_map=None):
 	"""
 	Takes ascii & color data, and display it on the screen
 	"""
 	import curses
 
 	curses.setupterm()
-	creset = curses.tigetstr('sc')
-	ccolor = curses.tigetstr('setaf')
-	cbold  = curses.tigetstr('bold')
+	fg_normal = curses.tigetstr('sgr0')
+	fg_colors = [curses.tparm(curses.tigetstr('setaf'), i) for i in range(8)]
+	attr_bold   = curses.tparm(curses.tigetstr('bold'), curses.A_BOLD)
+	attr_normal = curses.tparm(curses.tigetstr('sgr0'), curses.A_NORMAL)
 
-	def set_color(n):
-		if n in range(0, 8):
-			return curses.tparm(ccolor, n)
-		if n in range(8, 16):
-			return curses.tparm(ccolor, n) + curses.tparm(cbold)
+	def set_color(fg=None):
+		if fg is None:
+			return fg_normal + attr_normal
+		if fg in range(0, 8):
+			return fg_colors[fg]
+		if fg in range(8, 16):
+			return fg_colors[fg-8] + attr_bold
 		return ''
-
-	def reset_colors():
-		return curses.tparm(creset)
 
 	for y in range(len(char_map)):
 		for x in range(len(char_map[y])):
-			file.write(set_color(color_map[y][x]))
-			file.write(characters[char_map[y][x]])
-		file.write('\n')
+			if color_map is not None:
+				print(set_color(color_map[y][x]), end='')
+			print(characters[char_map[y][x]], end='')
+		print('')
 
-	file.write(reset_colors())
+	if color_map is not None:
+		print(set_color(), end='')
 #}}}
 
 
