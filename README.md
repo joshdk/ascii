@@ -21,11 +21,11 @@ Setup
 Running
 -------
 
-    $ imgshow IMAGE [CHARSET]
+    $ ascii IMAGE [CHARSET]
 
-    $ imgshow picture.jpg
+    $ ascii picture.jpg
 
-    $ imgshow picture.jpg " -+=$#"
+    $ ascii picture.jpg " -+=$#"
 
 
 Notes
@@ -34,4 +34,3 @@ Notes
 ### Dependencies
 *   Python2
 *   PIL
-*   NumPy
