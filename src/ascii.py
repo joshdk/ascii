@@ -75,17 +75,17 @@ def _grayscale(im):
 	"""
 	Take a PIL Image, and return a PIL Image, that had been converted to grayscale
 	"""
-	from numpy import array, uint8
-
 	im = im.convert('F')
-	data = array(im)
+	data = im.getdata()
 
-	cmin, cmax = data.min(), data.max()
+	cmin, cmax = min(data), max(data)
 	scale = 255.0 / (cmax-cmin or 1)
 
-	bytedata = ((data-cmin)*scale+0.499).astype(uint8)
+	pixels = [int((value-cmin)*scale+0.449) for value in data]
 
-	return img.fromstring('L', (data.shape[1], data.shape[0]), bytedata.tostring())
+	gim = img.new('L', im.size)
+	gim.putdata(pixels)
+	return gim
 #}}}
 
 
